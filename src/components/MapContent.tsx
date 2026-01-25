@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
-import { MapContainer, TileLayer, Polyline, useMap } from 'react-leaflet';
-import { LatLngExpression } from 'leaflet';
+import { useEffect, useRef } from 'react';
+import L from 'leaflet';
 import { Street } from '@/data/streetData';
 import 'leaflet/dist/leaflet.css';
 
@@ -12,50 +11,68 @@ const getStatusColor = (status: 'safe' | 'moderate' | 'unsafe'): string => {
   }
 };
 
-const MapController = ({ center }: { center: LatLngExpression }) => {
-  const map = useMap();
-  useEffect(() => {
-    map.setView(center, 15);
-  }, [center, map]);
-  return null;
-};
-
 interface MapContentProps {
   streets: Street[];
   onStreetClick: (street: Street) => void;
 }
 
 const MapContent = ({ streets, onStreetClick }: MapContentProps) => {
-  const center: LatLngExpression = [28.6139, 77.2090];
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+  const polylinesRef = useRef<L.Polyline[]>([]);
 
-  return (
-    <MapContainer
-      center={center}
-      zoom={15}
-      style={{ height: '100%', width: '100%' }}
-      scrollWheelZoom={true}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <MapController center={center} />
-      {streets.map((street) => (
-        <Polyline
-          key={street.id}
-          positions={street.coordinates as LatLngExpression[]}
-          pathOptions={{
-            color: getStatusColor(street.status),
-            weight: 6,
-            opacity: 0.8,
-          }}
-          eventHandlers={{
-            click: () => onStreetClick(street),
-          }}
-        />
-      ))}
-    </MapContainer>
-  );
+  // Initialize map
+  useEffect(() => {
+    if (!mapRef.current || mapInstanceRef.current) return;
+
+    const map = L.map(mapRef.current).setView([28.6139, 77.2090], 15);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    mapInstanceRef.current = map;
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
+
+  // Update polylines when streets change
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    // Remove existing polylines
+    polylinesRef.current.forEach(polyline => {
+      map.removeLayer(polyline);
+    });
+    polylinesRef.current = [];
+
+    // Add new polylines
+    streets.forEach((street) => {
+      const polyline = L.polyline(
+        street.coordinates.map(coord => [coord[0], coord[1]] as L.LatLngTuple),
+        {
+          color: getStatusColor(street.status),
+          weight: 6,
+          opacity: 0.8,
+        }
+      );
+
+      polyline.on('click', () => {
+        onStreetClick(street);
+      });
+
+      polyline.addTo(map);
+      polylinesRef.current.push(polyline);
+    });
+  }, [streets, onStreetClick]);
+
+  return <div ref={mapRef} style={{ height: '100%', width: '100%' }} />;
 };
 
 export default MapContent;
