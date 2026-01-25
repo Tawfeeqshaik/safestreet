@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapContainer, TileLayer, Polyline, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, useMap } from 'react-leaflet';
 import { LatLngExpression } from 'leaflet';
 import { X, AlertTriangle, CheckCircle, AlertCircle, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -264,12 +264,7 @@ export const WalkabilityMap = () => {
                 eventHandlers={{
                   click: () => setSelectedStreet(street),
                 }}
-              >
-                <Popup>
-                  <div className="font-semibold">{street.name}</div>
-                  <div className="text-sm">Score: {street.totalScore}/10</div>
-                </Popup>
-              </Polyline>
+              />
             ))}
           </MapContainer>
 
