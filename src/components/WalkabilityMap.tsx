@@ -1,19 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapContainer, TileLayer, Polyline, useMap } from 'react-leaflet';
-import { LatLngExpression } from 'leaflet';
-import { X, AlertTriangle, CheckCircle, AlertCircle, Lightbulb } from 'lucide-react';
+import { X, AlertTriangle, CheckCircle, AlertCircle, Lightbulb, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { sampleStreets, Street, cityStats } from '@/data/streetData';
-import 'leaflet/dist/leaflet.css';
-
-const getStatusColor = (status: 'safe' | 'moderate' | 'unsafe'): string => {
-  switch (status) {
-    case 'safe': return '#22c55e';
-    case 'moderate': return '#eab308';
-    case 'unsafe': return '#ef4444';
-  }
-};
 
 const getStatusBg = (status: 'safe' | 'moderate' | 'unsafe'): string => {
   switch (status) {
@@ -21,14 +10,6 @@ const getStatusBg = (status: 'safe' | 'moderate' | 'unsafe'): string => {
     case 'moderate': return 'bg-status-moderate';
     case 'unsafe': return 'bg-status-unsafe';
   }
-};
-
-const MapController = ({ center }: { center: LatLngExpression }) => {
-  const map = useMap();
-  useEffect(() => {
-    map.setView(center, 15);
-  }, [center, map]);
-  return null;
 };
 
 interface StreetDetailProps {
@@ -142,10 +123,28 @@ const StreetDetail = ({ street, onClose }: StreetDetailProps) => {
   );
 };
 
-export const WalkabilityMap = () => {
+// Lazy load the actual map component
+const LazyMapContent = lazy(() => import('./MapContent'));
+
+const MapLoading = () => (
+  <div className="h-full w-full flex items-center justify-center bg-secondary/50">
+    <div className="text-center">
+      <MapPin className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
+      <p className="text-muted-foreground">Loading map...</p>
+    </div>
+  </div>
+);
+
+interface WalkabilityMapProps {}
+
+export const WalkabilityMap = ({}: WalkabilityMapProps) => {
   const [selectedStreet, setSelectedStreet] = useState<Street | null>(null);
   const [filter, setFilter] = useState<'all' | 'safe' | 'moderate' | 'unsafe'>('all');
-  const center: LatLngExpression = [28.6139, 77.2090];
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const filteredStreets = sampleStreets.filter(
     (street) => filter === 'all' || street.status === filter
@@ -241,32 +240,16 @@ export const WalkabilityMap = () => {
           className="relative rounded-2xl overflow-hidden border border-border shadow-xl"
           style={{ height: '500px' }}
         >
-          <MapContainer
-            center={center}
-            zoom={15}
-            style={{ height: '100%', width: '100%' }}
-            scrollWheelZoom={true}
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <MapController center={center} />
-            {filteredStreets.map((street) => (
-              <Polyline
-                key={street.id}
-                positions={street.coordinates as LatLngExpression[]}
-                pathOptions={{
-                  color: getStatusColor(street.status),
-                  weight: 6,
-                  opacity: 0.8,
-                }}
-                eventHandlers={{
-                  click: () => setSelectedStreet(street),
-                }}
+          {isClient ? (
+            <Suspense fallback={<MapLoading />}>
+              <LazyMapContent
+                streets={filteredStreets}
+                onStreetClick={setSelectedStreet}
               />
-            ))}
-          </MapContainer>
+            </Suspense>
+          ) : (
+            <MapLoading />
+          )}
 
           <AnimatePresence>
             {selectedStreet && (
