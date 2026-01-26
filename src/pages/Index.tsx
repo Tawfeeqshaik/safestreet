@@ -1,5 +1,6 @@
 import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
+import { RoutePlanner } from '@/components/routing/RoutePlanner';
 import { WalkabilityMap } from '@/components/WalkabilityMap';
 import { ScoringSystem } from '@/components/ScoringSystem';
 import { ImpactSection } from '@/components/ImpactSection';
@@ -12,6 +13,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <Hero />
+      <RoutePlanner />
       <WalkabilityMap />
       <ScoringSystem />
       <ImpactSection />

@@ -14,7 +14,138 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      route_ratings: {
+        Row: {
+          accessibility_score: number | null
+          comment: string | null
+          created_at: string
+          end_lat: number
+          end_lng: number
+          end_name: string | null
+          id: string
+          lighting_score: number | null
+          overall_rating: number
+          route_hash: string
+          safety_score: number | null
+          start_lat: number
+          start_lng: number
+          start_name: string | null
+          updated_at: string
+          user_id: string
+          walkability_score: number | null
+        }
+        Insert: {
+          accessibility_score?: number | null
+          comment?: string | null
+          created_at?: string
+          end_lat: number
+          end_lng: number
+          end_name?: string | null
+          id?: string
+          lighting_score?: number | null
+          overall_rating: number
+          route_hash: string
+          safety_score?: number | null
+          start_lat: number
+          start_lng: number
+          start_name?: string | null
+          updated_at?: string
+          user_id: string
+          walkability_score?: number | null
+        }
+        Update: {
+          accessibility_score?: number | null
+          comment?: string | null
+          created_at?: string
+          end_lat?: number
+          end_lng?: number
+          end_name?: string | null
+          id?: string
+          lighting_score?: number | null
+          overall_rating?: number
+          route_hash?: string
+          safety_score?: number | null
+          start_lat?: number
+          start_lng?: number
+          start_name?: string | null
+          updated_at?: string
+          user_id?: string
+          walkability_score?: number | null
+        }
+        Relationships: []
+      }
+      saved_routes: {
+        Row: {
+          created_at: string
+          distance_meters: number | null
+          duration_seconds: number | null
+          end_lat: number
+          end_lng: number
+          end_name: string
+          id: string
+          route_hash: string
+          start_lat: number
+          start_lng: number
+          start_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          distance_meters?: number | null
+          duration_seconds?: number | null
+          end_lat: number
+          end_lng: number
+          end_name: string
+          id?: string
+          route_hash: string
+          start_lat: number
+          start_lng: number
+          start_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          distance_meters?: number | null
+          duration_seconds?: number | null
+          end_lat?: number
+          end_lng?: number
+          end_name?: string
+          id?: string
+          route_hash?: string
+          start_lat?: number
+          start_lng?: number
+          start_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
