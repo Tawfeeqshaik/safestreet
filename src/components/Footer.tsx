@@ -1,22 +1,17 @@
-import { MapPin, Github, Twitter, Linkedin, Mail } from 'lucide-react';
+import { Footprints, Github, Twitter, Linkedin, Mail } from 'lucide-react';
 
 const footerLinks = {
   platform: [
-    { name: 'Interactive Map', href: '#map' },
-    { name: 'Scoring System', href: '#scoring' },
+    { name: 'Walk Score Calculator', href: '#walk-score' },
     { name: 'Impact & Benefits', href: '#impact' },
-    { name: 'SDG Alignment', href: '#sdg' },
   ],
   resources: [
+    { name: 'How It Works', href: '#walk-score' },
     { name: 'Methodology', href: '#about' },
-    { name: 'Data Sources', href: '#about' },
-    { name: 'API Documentation', href: '#' },
-    { name: 'Research Papers', href: '#' },
   ],
   legal: [
     { name: 'Privacy Policy', href: '#' },
     { name: 'Terms of Service', href: '#' },
-    { name: 'Data Disclaimer', href: '#' },
   ],
 };
 
@@ -36,13 +31,16 @@ export const Footer = () => {
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-xl bg-primary-foreground flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-foreground" />
+                <Footprints className="w-5 h-5 text-foreground" />
               </div>
-              <span className="font-bold text-xl">Safe Streets</span>
+              <div className="flex flex-col">
+                <span className="font-bold text-lg leading-tight">WalkScore</span>
+                <span className="text-xs text-primary-foreground/60 leading-tight">City Heart</span>
+              </div>
             </div>
             <p className="text-primary-foreground/70 text-sm mb-6 max-w-sm">
-              Helping cities move from car-centric roads to people-first streets by making 
-              walkability visible, measurable, and actionable.
+              Helping cities become more walkable and pedestrian-friendly. 
+              Understand route walkability for healthier, more sustainable living.
             </p>
             <div className="flex gap-3">
               {socialLinks.map((social) => (
@@ -114,14 +112,14 @@ export const Footer = () => {
         <div className="pt-8 border-t border-primary-foreground/10">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-primary-foreground/50">
-              © {new Date().getFullYear()} Safe Streets. Open-source urban analytics platform.
+              © {new Date().getFullYear()} WalkScore City Heart. Walkability made visible.
             </p>
             <div className="flex items-center gap-4">
               <span className="text-xs text-primary-foreground/50 px-3 py-1 rounded-full bg-primary-foreground/10">
-                MVP / Prototype
+                Prototype Demo
               </span>
               <span className="text-xs text-primary-foreground/50">
-                Uses sample demonstration data
+                Simulated scoring for demonstration
               </span>
             </div>
           </div>

@@ -1,11 +1,7 @@
 import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
-import { RoutePlanner } from '@/components/routing/RoutePlanner';
-import { WalkabilityMap } from '@/components/WalkabilityMap';
-import { ScoringSystem } from '@/components/ScoringSystem';
+import { WalkScoreCalculator } from '@/components/WalkScoreCalculator';
 import { ImpactSection } from '@/components/ImpactSection';
-import { SDGSection } from '@/components/SDGSection';
-import { FutureScope } from '@/components/FutureScope';
 import { Footer } from '@/components/Footer';
 
 const Index = () => {
@@ -13,12 +9,8 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <Hero />
-      <RoutePlanner />
-      <WalkabilityMap />
-      <ScoringSystem />
+      <WalkScoreCalculator />
       <ImpactSection />
-      <SDGSection />
-      <FutureScope />
       <Footer />
     </div>
   );
