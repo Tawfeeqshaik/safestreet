@@ -1,9 +1,10 @@
 import { useState, useCallback, Suspense, lazy } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Loader2, RotateCcw, Info, Footprints } from 'lucide-react';
+import { ArrowRight, Loader2, RotateCcw, Info, Footprints, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LocationSearch } from './routing/LocationSearch';
+import { ShareScoreModal } from './ShareScoreModal';
 import { Location } from '@/services/geocodingService';
 import { calculateWalkingRoute, Route } from '@/services/routingService';
 import { toast } from 'sonner';
@@ -65,6 +66,7 @@ export function WalkScoreCalculator() {
   const [route, setRoute] = useState<Route | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [walkScore, setWalkScore] = useState<WalkScoreResult | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const calculateScore = useCallback(async () => {
     if (!startLocation || !endLocation) {
@@ -237,9 +239,20 @@ export function WalkScoreCalculator() {
                       </div>
                       
                       {/* Explanation */}
-                      <p className="text-sm text-muted-foreground leading-relaxed">
+                      <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                         {walkScore.explanation}
                       </p>
+                      
+                      {/* Share Button */}
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setShowShareModal(true)}
+                        className="w-full"
+                      >
+                        <Share2 className="w-4 h-4 mr-2" />
+                        Share Your Score
+                      </Button>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -318,6 +331,17 @@ export function WalkScoreCalculator() {
           ))}
         </motion.div>
       </div>
+
+      {/* Share Modal */}
+      {walkScore && startLocation && endLocation && (
+        <ShareScoreModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          walkScore={walkScore}
+          fromLocation={startLocation.name.split(',')[0]}
+          toLocation={endLocation.name.split(',')[0]}
+        />
+      )}
     </section>
   );
 }
