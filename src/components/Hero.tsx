@@ -1,17 +1,11 @@
 import { motion } from 'framer-motion';
-import { ArrowDown, MapPin, Shield, TrendingUp } from 'lucide-react';
+import { ArrowDown, Footprints, Heart, TreeDeciduous } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-const stats = [
-  { label: 'Streets Analyzed', value: '156+', icon: MapPin },
-  { label: 'Safety Score Avg', value: '6.2/10', icon: Shield },
-  { label: 'Improvement Rate', value: '23%', icon: TrendingUp },
-];
 
 export const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
-      {/* Background Pattern */}
+    <section className="relative min-h-[90vh] flex items-center pt-16 overflow-hidden">
+      {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-secondary via-background to-secondary/50" />
       <div 
         className="absolute inset-0 opacity-[0.03]"
@@ -21,16 +15,16 @@ export const Hero = () => {
       />
 
       <div className="section-container relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-3xl mx-auto text-center">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6"
           >
             <span className="w-2 h-2 rounded-full bg-status-safe animate-pulse" />
-            Supporting SDG 11 & SDG 3
+            Walkability Prototype
           </motion.div>
 
           {/* Headline */}
@@ -38,11 +32,11 @@ export const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-6"
+            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-5"
           >
-            Making Every Street{' '}
+            WalkScore{' '}
             <span className="text-gradient bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              Safe to Walk
+              City Heart
             </span>
           </motion.h1>
 
@@ -51,54 +45,51 @@ export const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
+            className="text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto mb-8"
           >
-            Cities prioritize vehicles over people. Safe Streets analyzes walkability to help citizens 
-            and planners create pedestrian-friendly, sustainable urban environments.
+            Discover how walkable your routes are. Our walkability scores help you understand 
+            pedestrian accessibility, safety, and the impact on your health and sustainability goals.
           </motion.p>
 
-          {/* CTA Buttons */}
+          {/* CTA */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
+            className="mb-12"
           >
             <Button variant="hero" size="xl" asChild>
-              <a href="#map" className="gap-2">
-                <MapPin className="w-5 h-5" />
-                Check Walkability in Your Area
+              <a href="#walk-score" className="gap-2">
+                <Footprints className="w-5 h-5" />
+                Calculate Your Walk Score
               </a>
-            </Button>
-            <Button variant="outline" size="xl" asChild>
-              <a href="#scoring">Learn How It Works</a>
             </Button>
           </motion.div>
 
-          {/* Stats */}
+          {/* Value Props */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-4"
           >
-            {stats.map((stat, index) => (
+            {[
+              { icon: Footprints, label: 'Walkability Analysis', desc: 'Score routes 0-100' },
+              { icon: Heart, label: 'Health Benefits', desc: 'Walking improves wellness' },
+              { icon: TreeDeciduous, label: 'Sustainability', desc: 'Reduce carbon footprint' },
+            ].map((item, index) => (
               <motion.div
-                key={stat.label}
+                key={item.label}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-                className="card-elevated p-6 rounded-2xl"
+                className="card-elevated p-5 rounded-xl"
               >
-                <div className="flex items-center justify-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <stat.icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-2xl font-bold text-foreground">{stat.value}</div>
-                    <div className="text-sm text-muted-foreground">{stat.label}</div>
-                  </div>
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <item.icon className="w-5 h-5 text-primary" />
                 </div>
+                <div className="font-semibold text-foreground text-sm">{item.label}</div>
+                <div className="text-xs text-muted-foreground mt-1">{item.desc}</div>
               </motion.div>
             ))}
           </motion.div>
@@ -109,16 +100,17 @@ export const Hero = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 0.5 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2"
         >
-          <motion.div
+          <motion.a
+            href="#walk-score"
             animate={{ y: [0, 8, 0] }}
             transition={{ repeat: Infinity, duration: 1.5 }}
-            className="flex flex-col items-center gap-2 text-muted-foreground"
+            className="flex flex-col items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
           >
-            <span className="text-sm">Explore</span>
+            <span className="text-sm">Get Started</span>
             <ArrowDown className="w-5 h-5" />
-          </motion.div>
+          </motion.a>
         </motion.div>
       </div>
     </section>

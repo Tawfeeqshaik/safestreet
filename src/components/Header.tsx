@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, MapPin, Info, BarChart3, Target, Lightbulb } from 'lucide-react';
+import { Menu, X, Footprints, Info, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
-  { name: 'Map', href: '#map', icon: MapPin },
-  { name: 'Scoring', href: '#scoring', icon: BarChart3 },
+  { name: 'Walk Score', href: '#walk-score', icon: Footprints },
   { name: 'Impact', href: '#impact', icon: Target },
-  { name: 'SDGs', href: '#sdg', icon: Lightbulb },
   { name: 'About', href: '#about', icon: Info },
 ];
 
@@ -21,9 +19,12 @@ export const Header = () => {
           {/* Logo */}
           <a href="#" className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <MapPin className="w-5 h-5 text-primary-foreground" />
+              <Footprints className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="font-bold text-xl text-foreground">Safe Streets</span>
+            <div className="flex flex-col">
+              <span className="font-bold text-lg text-foreground leading-tight">WalkScore</span>
+              <span className="text-xs text-muted-foreground leading-tight">City Heart</span>
+            </div>
           </a>
 
           {/* Desktop Nav */}
@@ -42,7 +43,7 @@ export const Header = () => {
           {/* CTA Button */}
           <div className="hidden md:block">
             <Button variant="hero" size="lg" asChild>
-              <a href="#map">Check Your Area</a>
+              <a href="#walk-score">Get Walk Score</a>
             </Button>
           </div>
 
@@ -78,7 +79,7 @@ export const Header = () => {
                 </a>
               ))}
               <Button variant="hero" size="lg" className="w-full mt-4" asChild>
-                <a href="#map" onClick={() => setIsOpen(false)}>Check Your Area</a>
+                <a href="#walk-score" onClick={() => setIsOpen(false)}>Get Walk Score</a>
               </Button>
             </div>
           </motion.div>
