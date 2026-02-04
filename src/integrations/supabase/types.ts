@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      government_complaints: {
+        Row: {
+          complaint_type: string
+          cpgrams_redirect_url: string | null
+          created_at: string
+          description: string | null
+          distance_meters: number
+          end_lat: number
+          end_lng: number
+          end_location: string
+          id: string
+          redirected_at: string
+          route_hash: string
+          start_lat: number
+          start_lng: number
+          start_location: string
+          user_id: string
+          walkability_score: number
+        }
+        Insert: {
+          complaint_type: string
+          cpgrams_redirect_url?: string | null
+          created_at?: string
+          description?: string | null
+          distance_meters: number
+          end_lat: number
+          end_lng: number
+          end_location: string
+          id?: string
+          redirected_at?: string
+          route_hash: string
+          start_lat: number
+          start_lng: number
+          start_location: string
+          user_id: string
+          walkability_score: number
+        }
+        Update: {
+          complaint_type?: string
+          cpgrams_redirect_url?: string | null
+          created_at?: string
+          description?: string | null
+          distance_meters?: number
+          end_lat?: number
+          end_lng?: number
+          end_location?: string
+          id?: string
+          redirected_at?: string
+          route_hash?: string
+          start_lat?: number
+          start_lng?: number
+          start_location?: string
+          user_id?: string
+          walkability_score?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -101,6 +158,33 @@ export type Database = {
         }
         Relationships: []
       }
+      route_score_sessions: {
+        Row: {
+          expires_at: string
+          id: string
+          locked_at: string
+          route_hash: string
+          user_id: string
+          walkability_score: number
+        }
+        Insert: {
+          expires_at?: string
+          id?: string
+          locked_at?: string
+          route_hash: string
+          user_id: string
+          walkability_score: number
+        }
+        Update: {
+          expires_at?: string
+          id?: string
+          locked_at?: string
+          route_hash?: string
+          user_id?: string
+          walkability_score?: number
+        }
+        Relationships: []
+      }
       saved_routes: {
         Row: {
           created_at: string
@@ -146,6 +230,105 @@ export type Database = {
         }
         Relationships: []
       }
+      street_issues: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_urls: string[] | null
+          issue_type: string
+          lat: number
+          lng: number
+          location_name: string | null
+          route_hash: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_urls?: string[] | null
+          issue_type: string
+          lat: number
+          lng: number
+          location_name?: string | null
+          route_hash: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_urls?: string[] | null
+          issue_type?: string
+          lat?: number
+          lng?: number
+          location_name?: string | null
+          route_hash?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_achievements: {
+        Row: {
+          achievement: Database["public"]["Enums"]["achievement_type"]
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          achievement: Database["public"]["Enums"]["achievement_type"]
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          achievement?: Database["public"]["Enums"]["achievement_type"]
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_contributions: {
+        Row: {
+          complaints_raised: number
+          created_at: string
+          id: string
+          images_uploaded: number
+          routes_analyzed: number
+          scores_submitted: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          complaints_raised?: number
+          created_at?: string
+          id?: string
+          images_uploaded?: number
+          routes_analyzed?: number
+          scores_submitted?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          complaints_raised?: number
+          created_at?: string
+          id?: string
+          images_uploaded?: number
+          routes_analyzed?: number
+          scores_submitted?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -154,7 +337,24 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      achievement_type:
+        | "first_route"
+        | "explorer_10"
+        | "explorer_50"
+        | "explorer_100"
+        | "first_rating"
+        | "rater_10"
+        | "rater_50"
+        | "rater_100"
+        | "first_upload"
+        | "photographer_10"
+        | "photographer_50"
+        | "first_complaint"
+        | "advocate_10"
+        | "advocate_50"
+        | "safety_advocate"
+        | "urban_explorer"
+        | "active_contributor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -281,6 +481,26 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      achievement_type: [
+        "first_route",
+        "explorer_10",
+        "explorer_50",
+        "explorer_100",
+        "first_rating",
+        "rater_10",
+        "rater_50",
+        "rater_100",
+        "first_upload",
+        "photographer_10",
+        "photographer_50",
+        "first_complaint",
+        "advocate_10",
+        "advocate_50",
+        "safety_advocate",
+        "urban_explorer",
+        "active_contributor",
+      ],
+    },
   },
 } as const

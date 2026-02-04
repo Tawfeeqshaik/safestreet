@@ -1,12 +1,18 @@
-import { useState, useCallback, Suspense, lazy } from 'react';
+import { useState, useCallback, Suspense, lazy, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Loader2, RotateCcw, Info, Footprints, Share2 } from 'lucide-react';
+import { ArrowRight, Loader2, RotateCcw, Info, Footprints, Share2, Camera, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LocationSearch } from './routing/LocationSearch';
 import { ShareScoreModal } from './ShareScoreModal';
+import { AuthModal } from './routing/AuthModal';
+import { ReportIssueModal } from './issues/ReportIssueModal';
+import { ComplaintEscalation } from './complaints/ComplaintEscalation';
 import { Location } from '@/services/geocodingService';
 import { calculateWalkingRoute, Route } from '@/services/routingService';
+import { useAuth } from '@/hooks/useAuth';
+import { useRouteScoreSession, useLockRouteScore, generateRouteHash } from '@/hooks/useRouteScoreSession';
+import { useIncrementContribution } from '@/hooks/useUserContributions';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -21,7 +27,6 @@ interface WalkScoreResult {
 }
 
 function generateWalkScore(): WalkScoreResult {
-  // Simulated score for prototype - can be replaced with real data later
   const score = Math.floor(Math.random() * 101);
   
   if (score >= 70) {
@@ -61,12 +66,55 @@ const MapLoading = () => (
 );
 
 export function WalkScoreCalculator() {
+  const { user, isAuthenticated } = useAuth();
   const [startLocation, setStartLocation] = useState<Location | null>(null);
   const [endLocation, setEndLocation] = useState<Location | null>(null);
   const [route, setRoute] = useState<Route | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [walkScore, setWalkScore] = useState<WalkScoreResult | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [routeHash, setRouteHash] = useState<string | null>(null);
+
+  const { data: lockedSession } = useRouteScoreSession(routeHash);
+  const lockRouteScore = useLockRouteScore();
+  const incrementContribution = useIncrementContribution();
+
+  // Use locked score if session exists and hasn't expired
+  useEffect(() => {
+    if (lockedSession && routeHash && !walkScore) {
+      const score = lockedSession.walkability_score;
+      let result: WalkScoreResult;
+      
+      if (score >= 70) {
+        result = {
+          score,
+          category: 'high',
+          label: 'Highly Walkable',
+          explanation: 'Highly walkable area with good pedestrian access, well-lit paths, and safe crossings.',
+          color: 'text-status-safe',
+        };
+      } else if (score >= 40) {
+        result = {
+          score,
+          category: 'moderate',
+          label: 'Moderately Walkable',
+          explanation: 'Moderate walkability with some pedestrian infrastructure.',
+          color: 'text-status-moderate',
+        };
+      } else {
+        result = {
+          score,
+          category: 'low',
+          label: 'Poor Walkability',
+          explanation: 'Low walkability, not pedestrian friendly.',
+          color: 'text-status-unsafe',
+        };
+      }
+      setWalkScore(result);
+    }
+  }, [lockedSession, routeHash, walkScore]);
 
   const calculateScore = useCallback(async () => {
     if (!startLocation || !endLocation) {
@@ -80,10 +128,35 @@ export function WalkScoreCalculator() {
     try {
       const result = await calculateWalkingRoute(startLocation, endLocation);
       if (result && result.routes.length > 0) {
-        setRoute(result.routes[0]);
-        // Simulate score calculation with a slight delay for UX
+        const selectedRoute = result.routes[0];
+        setRoute(selectedRoute);
+        
+        // Generate route hash for session tracking
+        const hash = generateRouteHash(
+          startLocation.lat, 
+          startLocation.lng, 
+          endLocation.lat, 
+          endLocation.lng
+        );
+        setRouteHash(hash);
+        
         await new Promise(resolve => setTimeout(resolve, 800));
-        setWalkScore(generateWalkScore());
+        const generatedScore = generateWalkScore();
+        setWalkScore(generatedScore);
+        
+        // Lock the score for the user's session (if authenticated)
+        if (isAuthenticated) {
+          try {
+            await lockRouteScore.mutateAsync({
+              routeHash: hash,
+              walkabilityScore: generatedScore.score,
+            });
+            await incrementContribution.mutateAsync('routes_analyzed');
+          } catch (e) {
+            // Non-critical, continue
+          }
+        }
+        
         toast.success('Walk score calculated!');
       } else {
         toast.error('No walking route found between these locations');
@@ -93,7 +166,7 @@ export function WalkScoreCalculator() {
     } finally {
       setIsCalculating(false);
     }
-  }, [startLocation, endLocation]);
+  }, [startLocation, endLocation, isAuthenticated, lockRouteScore, incrementContribution]);
 
   const swapLocations = () => {
     const temp = startLocation;
@@ -101,6 +174,7 @@ export function WalkScoreCalculator() {
     setEndLocation(temp);
     setRoute(null);
     setWalkScore(null);
+    setRouteHash(null);
   };
 
   const resetCalculation = () => {
@@ -108,6 +182,7 @@ export function WalkScoreCalculator() {
     setEndLocation(null);
     setRoute(null);
     setWalkScore(null);
+    setRouteHash(null);
   };
 
   return (
@@ -129,7 +204,11 @@ export function WalkScoreCalculator() {
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Enter your start and destination to get an instant walkability assessment. 
-            Discover how pedestrian-friendly your journey will be.
+            {!isAuthenticated && (
+              <span className="text-primary cursor-pointer hover:underline" onClick={() => setShowAuthModal(true)}>
+                {' '}Sign in to track your contributions!
+              </span>
+            )}
           </p>
         </motion.div>
 
@@ -157,6 +236,7 @@ export function WalkScoreCalculator() {
                     onChange={(loc) => {
                       setStartLocation(loc);
                       setWalkScore(null);
+                      setRouteHash(null);
                     }}
                     icon="start"
                   />
@@ -177,6 +257,7 @@ export function WalkScoreCalculator() {
                     onChange={(loc) => {
                       setEndLocation(loc);
                       setWalkScore(null);
+                      setRouteHash(null);
                     }}
                     icon="end"
                   />
@@ -243,19 +324,52 @@ export function WalkScoreCalculator() {
                         {walkScore.explanation}
                       </p>
                       
-                      {/* Share Button */}
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => setShowShareModal(true)}
-                        className="w-full"
-                      >
-                        <Share2 className="w-4 h-4 mr-2" />
-                        Share Your Score
-                      </Button>
+                      {/* Action Buttons */}
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setShowShareModal(true)}
+                          className="flex-1"
+                        >
+                          <Share2 className="w-4 h-4 mr-2" />
+                          Share Score
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            if (!isAuthenticated) {
+                              setShowAuthModal(true);
+                            } else {
+                              setShowReportModal(true);
+                            }
+                          }}
+                          className="flex-1"
+                        >
+                          <Camera className="w-4 h-4 mr-2" />
+                          Report Issue
+                        </Button>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
+
+                {/* Complaint Escalation */}
+                {walkScore && route && startLocation && endLocation && routeHash && (
+                  <ComplaintEscalation
+                    routeHash={routeHash}
+                    startLocation={startLocation.name.split(',')[0]}
+                    endLocation={endLocation.name.split(',')[0]}
+                    startLat={startLocation.lat}
+                    startLng={startLocation.lng}
+                    endLat={endLocation.lat}
+                    endLng={endLocation.lng}
+                    walkabilityScore={walkScore.score}
+                    distanceMeters={route.distance}
+                    onAuthRequired={() => setShowAuthModal(true)}
+                  />
+                )}
 
                 {/* Prototype Note */}
                 {walkScore && (
@@ -332,7 +446,9 @@ export function WalkScoreCalculator() {
         </motion.div>
       </div>
 
-      {/* Share Modal */}
+      {/* Modals */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      
       {walkScore && startLocation && endLocation && (
         <ShareScoreModal
           isOpen={showShareModal}
@@ -340,6 +456,17 @@ export function WalkScoreCalculator() {
           walkScore={walkScore}
           fromLocation={startLocation.name.split(',')[0]}
           toLocation={endLocation.name.split(',')[0]}
+        />
+      )}
+
+      {routeHash && startLocation && (
+        <ReportIssueModal
+          isOpen={showReportModal}
+          onClose={() => setShowReportModal(false)}
+          routeHash={routeHash}
+          lat={startLocation.lat}
+          lng={startLocation.lng}
+          locationName={startLocation.name.split(',')[0]}
         />
       )}
     </section>
