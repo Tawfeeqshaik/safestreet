@@ -35,11 +35,13 @@ export async function calculateWalkingRoute(
     // OSRM uses lng,lat format
     const coordinates = `${start.lng},${start.lat};${end.lng},${end.lat}`;
     
+    // Request alternatives=true to get multiple route options including those using subways/underpasses
+    // The foot profile considers pedestrian infrastructure (subways, footbridges, crossings) from OpenStreetMap
     const response = await fetch(
-      `${OSRM_BASE_URL}/route/v1/foot/${coordinates}?overview=full&geometries=geojson&steps=true&annotations=true`,
+      `${OSRM_BASE_URL}/route/v1/foot/${coordinates}?overview=full&geometries=geojson&steps=true&annotations=true&alternatives=3`,
       {
         headers: {
-          'User-Agent': 'SafeStreetsApp/1.0'
+          'User-Agent': 'WalkScoreCityHeart/1.0'
         }
       }
     );
@@ -71,6 +73,9 @@ export async function calculateWalkingRoute(
         }
       })) || []
     }));
+    
+    // Sort routes by distance to ensure shortest route is first
+    routes.sort((a, b) => a.distance - b.distance);
     
     return {
       routes,
