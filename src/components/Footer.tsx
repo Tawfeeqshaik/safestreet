@@ -34,7 +34,7 @@ export const Footer = () => {
                 <Footprints className="w-5 h-5 text-foreground" />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-lg leading-tight">WalkScore</span>
+                <span className="font-bold text-lg leading-tight">SafeStreet</span>
                 <span className="text-xs text-primary-foreground/60 leading-tight">City Heart</span>
               </div>
             </div>
@@ -112,7 +112,7 @@ export const Footer = () => {
         <div className="pt-8 border-t border-primary-foreground/10">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-primary-foreground/50">
-              © {new Date().getFullYear()} WalkScore City Heart. Walkability made visible.
+              © {new Date().getFullYear()} SafeStreet City Heart. Walkability made visible.
             </p>
             <div className="flex items-center gap-4">
               <span className="text-xs text-primary-foreground/50 px-3 py-1 rounded-full bg-primary-foreground/10">

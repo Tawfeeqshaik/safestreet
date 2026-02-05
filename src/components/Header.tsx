@@ -31,7 +31,7 @@ export const Header = () => {
                 <Footprints className="w-5 h-5 text-primary-foreground" />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-lg text-foreground leading-tight">WalkScore</span>
+                <span className="font-bold text-lg text-foreground leading-tight">SafeStreet</span>
                 <span className="text-xs text-muted-foreground leading-tight">City Heart</span>
               </div>
             </a>
@@ -73,7 +73,7 @@ export const Header = () => {
               )}
               
               <Button variant="hero" size="lg" asChild>
-                <a href="#walk-score">Get Walk Score</a>
+                <a href="#walk-score">Get SafeStreet Score</a>
               </Button>
             </div>
 
@@ -135,7 +135,7 @@ export const Header = () => {
                 )}
                 
                 <Button variant="hero" size="lg" className="w-full mt-4" asChild>
-                  <a href="#walk-score" onClick={() => setIsOpen(false)}>Get Walk Score</a>
+                  <a href="#walk-score" onClick={() => setIsOpen(false)}>Get SafeStreet Score</a>
                 </Button>
               </div>
             </motion.div>
