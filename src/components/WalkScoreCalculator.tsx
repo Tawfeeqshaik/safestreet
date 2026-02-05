@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Loader2, RotateCcw, Info, Footprints, Share2, Camera, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { LocationSearch } from './routing/LocationSearch';
 import { ShareScoreModal } from './ShareScoreModal';
 import { AuthModal } from './routing/AuthModal';
@@ -197,7 +198,7 @@ export function WalkScoreCalculator() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
             <Footprints className="w-4 h-4" />
-            Walk Score Calculator
+            SafeStreet Score Calculator
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4">
             How Walkable is Your Route?
@@ -212,22 +213,30 @@ export function WalkScoreCalculator() {
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
+        {/* 
+          CSS Grid Layout: Map and Calculator as siblings
+          - Desktop: side by side (Calculator left, Map right)
+          - Mobile/Tablet: stacked (Calculator on top, Map below)
+          - NO absolute/fixed positioning to prevent overlap
+        */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-6 lg:gap-8">
           {/* Calculator Card */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
+            className="order-1"
           >
-            <Card className="h-full shadow-lg">
+            <Card className="h-full shadow-lg max-h-[70vh] lg:max-h-none overflow-hidden flex flex-col">
               <CardHeader className="pb-4">
-                <CardTitle className="text-xl">Calculate Walk Score</CardTitle>
+                <CardTitle className="text-xl">Calculate SafeStreet Score</CardTitle>
                 <CardDescription>
                   Enter two locations to analyze the walkability of the route between them.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-5">
+              <ScrollArea className="flex-1">
+                <CardContent className="space-y-5">
                 {/* Location Inputs */}
                 <div className="space-y-3">
                   <LocationSearch
@@ -400,17 +409,22 @@ export function WalkScoreCalculator() {
                   </Button>
                 )}
               </CardContent>
+              </ScrollArea>
             </Card>
           </motion.div>
 
-          {/* Map Display */}
+          {/* Map Display - NEVER overlaps with calculator */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="rounded-2xl overflow-hidden border border-border shadow-lg"
-            style={{ minHeight: '500px' }}
+            className="order-2 rounded-2xl overflow-hidden border border-border shadow-lg relative"
+            style={{ 
+              minHeight: '400px',
+              height: '100%',
+              maxHeight: '70vh'
+            }}
           >
             <Suspense fallback={<MapLoading />}>
               <RouteMapDisplay
