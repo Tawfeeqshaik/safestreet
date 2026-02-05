@@ -237,8 +237,12 @@ export const WalkabilityMap = ({}: WalkabilityMapProps) => {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
-          className="relative rounded-2xl overflow-hidden border border-border shadow-xl"
-          style={{ height: '500px' }}
+          className="relative rounded-2xl overflow-hidden border border-border shadow-xl z-0"
+          style={{ 
+            height: '100%',
+            minHeight: '400px',
+            maxHeight: '70vh'
+          }}
         >
           {isClient ? (
             <Suspense fallback={<MapLoading />}>
