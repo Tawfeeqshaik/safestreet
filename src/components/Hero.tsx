@@ -34,7 +34,7 @@ export const Hero = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight mb-5"
           >
-            WalkScore{' '}
+            SafeStreet{' '}
             <span className="text-gradient bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
               City Heart
             </span>
