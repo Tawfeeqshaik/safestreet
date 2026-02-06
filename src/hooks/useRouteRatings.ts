@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { z } from 'zod';
 
 export interface RouteRating {
   id: string;
@@ -14,21 +15,23 @@ export interface RouteRating {
   created_at: string;
 }
 
-export interface RatingInput {
-  route_hash: string;
-  start_lat: number;
-  start_lng: number;
-  end_lat: number;
-  end_lng: number;
-  start_name?: string;
-  end_name?: string;
-  overall_rating: number;
-  walkability_score?: number;
-  safety_score?: number;
-  lighting_score?: number;
-  accessibility_score?: number;
-  comment?: string;
-}
+const ratingInputSchema = z.object({
+  route_hash: z.string().min(1).max(255),
+  start_lat: z.number().min(-90).max(90),
+  start_lng: z.number().min(-180).max(180),
+  end_lat: z.number().min(-90).max(90),
+  end_lng: z.number().min(-180).max(180),
+  start_name: z.string().max(500).optional(),
+  end_name: z.string().max(500).optional(),
+  overall_rating: z.number().int().min(1).max(5),
+  walkability_score: z.number().int().min(1).max(5).optional(),
+  safety_score: z.number().int().min(1).max(5).optional(),
+  lighting_score: z.number().int().min(1).max(5).optional(),
+  accessibility_score: z.number().int().min(1).max(5).optional(),
+  comment: z.string().max(2000).optional(),
+});
+
+export type RatingInput = z.infer<typeof ratingInputSchema>;
 
 export interface AggregateRating {
   average_overall: number;
@@ -82,6 +85,8 @@ export function useSubmitRating() {
   
   return useMutation({
     mutationFn: async (input: RatingInput) => {
+      const validated = ratingInputSchema.parse(input);
+      
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Must be logged in to rate');
       
@@ -89,7 +94,19 @@ export function useSubmitRating() {
         .from('route_ratings')
         .upsert({
           user_id: user.id,
-          ...input
+          route_hash: validated.route_hash,
+          start_lat: validated.start_lat,
+          start_lng: validated.start_lng,
+          end_lat: validated.end_lat,
+          end_lng: validated.end_lng,
+          start_name: validated.start_name,
+          end_name: validated.end_name,
+          overall_rating: validated.overall_rating,
+          walkability_score: validated.walkability_score,
+          safety_score: validated.safety_score,
+          lighting_score: validated.lighting_score,
+          accessibility_score: validated.accessibility_score,
+          comment: validated.comment,
         }, {
           onConflict: 'user_id,route_hash'
         })

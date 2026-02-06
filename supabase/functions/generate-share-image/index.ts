@@ -1,4 +1,5 @@
 /// <reference types="https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts" />
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,12 +15,35 @@ interface ShareImageRequest {
 }
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Authentication check
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    if (claimsError || !data?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication' }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { score, category, label, fromLocation, toLocation }: ShareImageRequest = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -27,14 +51,13 @@ Deno.serve(async (req) => {
       throw new Error("LOVABLE_API_KEY not configured");
     }
 
-    // Determine color based on category
     const colorDescription = category === 'high' 
       ? 'vibrant green' 
       : category === 'moderate' 
         ? 'warm orange' 
         : 'red';
 
-    const prompt = `Create a modern, clean social media share card image for a walkability score app called "WalkScore City Heart". 
+    const prompt = `Create a modern, clean social media share card image for a walkability score app called "SafeStreet City Heart". 
     
 The design should include:
 - A large prominent score of "${score}" displayed in ${colorDescription} color
@@ -43,7 +66,7 @@ The design should include:
 - The route: "From: ${fromLocation}" to "To: ${toLocation}" shown elegantly
 - Clean white background with soft gradients
 - Modern typography, minimalist style
-- The app name "WalkScore City Heart" in the corner
+- The app name "SafeStreet City Heart" in the corner
 - Professional, shareable look suitable for Twitter/LinkedIn
 
 Aspect ratio should be 16:9 for optimal social media display.`;
@@ -56,12 +79,7 @@ Aspect ratio should be 16:9 for optimal social media display.`;
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash-image",
-        messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
+        messages: [{ role: "user", content: prompt }],
         modalities: ["image", "text"],
       }),
     });
@@ -72,8 +90,8 @@ Aspect ratio should be 16:9 for optimal social media display.`;
       throw new Error(`AI Gateway error: ${response.status}`);
     }
 
-    const data = await response.json();
-    const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    const aiData = await response.json();
+    const imageUrl = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
 
     if (!imageUrl) {
       throw new Error("No image generated");
@@ -81,25 +99,14 @@ Aspect ratio should be 16:9 for optimal social media display.`;
 
     return new Response(
       JSON.stringify({ imageUrl }),
-      { 
-        headers: { 
-          ...corsHeaders, 
-          "Content-Type": "application/json" 
-        } 
-      }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error("Error generating share image:", errorMessage);
     return new Response(
       JSON.stringify({ error: errorMessage }),
-      { 
-        status: 500, 
-        headers: { 
-          ...corsHeaders, 
-          "Content-Type": "application/json" 
-        } 
-      }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });

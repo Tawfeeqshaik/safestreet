@@ -117,9 +117,11 @@ export async function uploadIssueImage(file: File, userId: string): Promise<stri
 
   if (uploadError) throw uploadError;
 
-  const { data } = supabase.storage
+  // Use signed URL since bucket is now private
+  const { data, error } = await supabase.storage
     .from('street-issues')
-    .getPublicUrl(fileName);
+    .createSignedUrl(fileName, 86400); // 24 hour expiration
 
-  return data.publicUrl;
+  if (error) throw error;
+  return data.signedUrl;
 }
