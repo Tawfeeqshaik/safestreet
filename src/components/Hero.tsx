@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowDown, Footprints, Heart, TreeDeciduous } from 'lucide-react';
+import { Footprints, Heart, TreeDeciduous } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export const Hero = () => {
@@ -95,23 +95,6 @@ export const Hero = () => {
           </motion.div>
         </div>
 
-        {/* Scroll Indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.5 }}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2"
-        >
-          <motion.a
-            href="#walk-score"
-            animate={{ y: [0, 8, 0] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-            className="flex flex-col items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
-          >
-            <span className="text-sm">Get Started</span>
-            <ArrowDown className="w-5 h-5" />
-          </motion.a>
-        </motion.div>
       </div>
     </section>
   );
